@@ -215,9 +215,9 @@ static void* TEST_twin_messenger_create_on_state_changed_context;
 static TWIN_MESSENGER_HANDLE TEST_twin_messenger_create_return;
 static TWIN_MESSENGER_HANDLE TEST_twin_messenger_create(const TWIN_MESSENGER_CONFIG* messenger_config)
 {
-	TEST_twin_messenger_create_on_state_changed_callback = messenger_config->on_state_changed_callback;
-	TEST_twin_messenger_create_on_state_changed_context = messenger_config->on_state_changed_context;
-	return TEST_twin_messenger_create_return;
+    TEST_twin_messenger_create_on_state_changed_callback = messenger_config->on_state_changed_callback;
+    TEST_twin_messenger_create_on_state_changed_context = messenger_config->on_state_changed_context;
+    return TEST_twin_messenger_create_return;
 }
 
 static IOTHUB_MESSAGE_LIST* TEST_telemetry_messenger_send_async_saved_message;
@@ -284,9 +284,10 @@ static DEVICE_CONFIG* get_device_config(DEVICE_AUTH_MODE auth_mode)
     return &TEST_device_config;
 }
 
-static void initialize_test_variables()
+static void reset_test_data()
 {
     saved_malloc_returns_count = 0;
+    memset(saved_malloc_returns, 0, sizeof(saved_malloc_returns));
 
     TEST_mallocAndStrcpy_s_return = 0;
 
@@ -316,9 +317,9 @@ static void initialize_test_variables()
     TEST_telemetry_messenger_create_saved_on_state_changed_context = NULL;
     TEST_telemetry_messenger_create_return = TEST_TELEMETRY_MESSENGER_HANDLE;
 
-	TEST_twin_messenger_create_on_state_changed_callback = NULL;
-	TEST_twin_messenger_create_on_state_changed_context = NULL;
-	TEST_twin_messenger_create_return = TEST_TWIN_MESSENGER_HANDLE;
+    TEST_twin_messenger_create_on_state_changed_callback = NULL;
+    TEST_twin_messenger_create_on_state_changed_context = NULL;
+    TEST_twin_messenger_create_return = TEST_TWIN_MESSENGER_HANDLE;
 
     TEST_telemetry_messenger_send_async_saved_message = NULL;
     TEST_telemetry_messenger_send_async_saved_callback = NULL;
@@ -340,11 +341,11 @@ static void register_umock_alias_types()
     REGISTER_UMOCK_ALIAS_TYPE(AUTHENTICATION_HANDLE, void*);
     REGISTER_UMOCK_ALIAS_TYPE(TELEMETRY_MESSENGER_STATE, int);
     REGISTER_UMOCK_ALIAS_TYPE(const TELEMETRY_MESSENGER_CONFIG*, void*);
-	REGISTER_UMOCK_ALIAS_TYPE(TELEMETRY_MESSENGER_HANDLE, void*);
-	REGISTER_UMOCK_ALIAS_TYPE(TWIN_MESSENGER_HANDLE, void*);
-	REGISTER_UMOCK_ALIAS_TYPE(TWIN_MESSENGER_STATE_CHANGED_CALLBACK, void*);
-	REGISTER_UMOCK_ALIAS_TYPE(TWIN_MESSENGER_REPORT_STATE_COMPLETE_CALLBACK, void*);
-	REGISTER_UMOCK_ALIAS_TYPE(TWIN_STATE_UPDATE_CALLBACK, void*);
+    REGISTER_UMOCK_ALIAS_TYPE(TELEMETRY_MESSENGER_HANDLE, void*);
+    REGISTER_UMOCK_ALIAS_TYPE(TWIN_MESSENGER_HANDLE, void*);
+    REGISTER_UMOCK_ALIAS_TYPE(TWIN_MESSENGER_STATE_CHANGED_CALLBACK, void*);
+    REGISTER_UMOCK_ALIAS_TYPE(TWIN_MESSENGER_REPORT_STATE_COMPLETE_CALLBACK, void*);
+    REGISTER_UMOCK_ALIAS_TYPE(TWIN_STATE_UPDATE_CALLBACK, void*);
     REGISTER_UMOCK_ALIAS_TYPE(CBS_HANDLE, void*);
     REGISTER_UMOCK_ALIAS_TYPE(const CBS_HANDLE, void*);
     REGISTER_UMOCK_ALIAS_TYPE(SESSION_HANDLE, void*);
@@ -371,8 +372,8 @@ static void register_global_mock_hooks()
     REGISTER_GLOBAL_MOCK_HOOK(telemetry_messenger_subscribe_for_messages, TEST_telemetry_messenger_subscribe_for_messages);
     REGISTER_GLOBAL_MOCK_HOOK(get_difftime, TEST_get_difftime);
     REGISTER_GLOBAL_MOCK_HOOK(authentication_create, TEST_authentication_create);
-	REGISTER_GLOBAL_MOCK_HOOK(telemetry_messenger_create, TEST_telemetry_messenger_create);
-	REGISTER_GLOBAL_MOCK_HOOK(twin_messenger_create, TEST_twin_messenger_create);
+    REGISTER_GLOBAL_MOCK_HOOK(telemetry_messenger_create, TEST_telemetry_messenger_create);
+    REGISTER_GLOBAL_MOCK_HOOK(twin_messenger_create, TEST_twin_messenger_create);
     REGISTER_GLOBAL_MOCK_HOOK(telemetry_messenger_send_async, TEST_telemetry_messenger_send_async);
 }
 
@@ -410,8 +411,8 @@ static void register_global_mock_returns()
     REGISTER_GLOBAL_MOCK_RETURN(telemetry_messenger_create, TEST_TELEMETRY_MESSENGER_HANDLE);
     REGISTER_GLOBAL_MOCK_FAIL_RETURN(telemetry_messenger_create, NULL);
 
-	REGISTER_GLOBAL_MOCK_RETURN(telemetry_messenger_start, 0);
-	REGISTER_GLOBAL_MOCK_FAIL_RETURN(telemetry_messenger_start, 1);
+    REGISTER_GLOBAL_MOCK_RETURN(telemetry_messenger_start, 0);
+    REGISTER_GLOBAL_MOCK_FAIL_RETURN(telemetry_messenger_start, 1);
 
     REGISTER_GLOBAL_MOCK_RETURN(telemetry_messenger_stop, 0);
     REGISTER_GLOBAL_MOCK_FAIL_RETURN(telemetry_messenger_stop, 1);
@@ -422,17 +423,17 @@ static void register_global_mock_returns()
     REGISTER_GLOBAL_MOCK_RETURN(telemetry_messenger_send_async, 0);
     REGISTER_GLOBAL_MOCK_FAIL_RETURN(telemetry_messenger_send_async, 1);
 
-	REGISTER_GLOBAL_MOCK_RETURN(twin_messenger_start, 0);
-	REGISTER_GLOBAL_MOCK_FAIL_RETURN(twin_messenger_start, 1);
+    REGISTER_GLOBAL_MOCK_RETURN(twin_messenger_start, 0);
+    REGISTER_GLOBAL_MOCK_FAIL_RETURN(twin_messenger_start, 1);
 
-	REGISTER_GLOBAL_MOCK_RETURN(twin_messenger_stop, 0);
-	REGISTER_GLOBAL_MOCK_FAIL_RETURN(twin_messenger_stop, 1);
+    REGISTER_GLOBAL_MOCK_RETURN(twin_messenger_stop, 0);
+    REGISTER_GLOBAL_MOCK_FAIL_RETURN(twin_messenger_stop, 1);
 
-	REGISTER_GLOBAL_MOCK_RETURN(twin_messenger_set_option, 0);
-	REGISTER_GLOBAL_MOCK_FAIL_RETURN(twin_messenger_set_option, 1);
+    REGISTER_GLOBAL_MOCK_RETURN(twin_messenger_set_option, 0);
+    REGISTER_GLOBAL_MOCK_FAIL_RETURN(twin_messenger_set_option, 1);
 
-	REGISTER_GLOBAL_MOCK_RETURN(twin_messenger_report_state_async, 0);
-	REGISTER_GLOBAL_MOCK_FAIL_RETURN(twin_messenger_report_state_async, 1);
+    REGISTER_GLOBAL_MOCK_RETURN(twin_messenger_report_state_async, 0);
+    REGISTER_GLOBAL_MOCK_FAIL_RETURN(twin_messenger_report_state_async, 1);
 
     REGISTER_GLOBAL_MOCK_RETURN(mallocAndStrcpy_s, 0);
     REGISTER_GLOBAL_MOCK_FAIL_RETURN(mallocAndStrcpy_s, 1);
@@ -478,8 +479,8 @@ static void set_expected_calls_for_create_messenger_instance(DEVICE_CONFIG *conf
 
 static void set_expected_calls_for_create_twin_messenger(DEVICE_CONFIG *config)
 {
-	(void)config;
-	EXPECTED_CALL(twin_messenger_create(IGNORED_PTR_ARG));
+    (void)config;
+    EXPECTED_CALL(twin_messenger_create(IGNORED_PTR_ARG));
 }
 
 static void set_expected_calls_for_device_create(DEVICE_CONFIG *config, time_t current_time)
@@ -497,7 +498,7 @@ static void set_expected_calls_for_device_create(DEVICE_CONFIG *config, time_t c
 
     set_expected_calls_for_create_messenger_instance(config);
 
-	set_expected_calls_for_create_twin_messenger(config);
+    set_expected_calls_for_create_twin_messenger(config);
 }
 
 static void set_expected_calls_for_device_start_async(DEVICE_CONFIG* config, time_t current_time)
@@ -516,10 +517,10 @@ static void set_expected_calls_for_device_stop(DEVICE_CONFIG* config, time_t cur
         STRICT_EXPECTED_CALL(telemetry_messenger_stop(TEST_TELEMETRY_MESSENGER_HANDLE));
     }
 
-	if (twin_msgr_state != TWIN_MESSENGER_STATE_STOPPED && twin_msgr_state != TWIN_MESSENGER_STATE_STOPPING)
-	{
-		STRICT_EXPECTED_CALL(twin_messenger_stop(TEST_TWIN_MESSENGER_HANDLE));
-	}
+    if (twin_msgr_state != TWIN_MESSENGER_STATE_STOPPED && twin_msgr_state != TWIN_MESSENGER_STATE_STOPPING)
+    {
+        STRICT_EXPECTED_CALL(twin_messenger_stop(TEST_TWIN_MESSENGER_HANDLE));
+    }
 
     if (config->authentication_mode == DEVICE_AUTH_MODE_CBS && auth_state != AUTHENTICATION_STATE_STOPPED)
     {
@@ -554,14 +555,14 @@ static void set_expected_calls_for_device_do_work(DEVICE_CONFIG* config, time_t 
                 set_expected_calls_for_is_timeout_reached(current_time);
             }
 
-			if (twin_msgr_state == TWIN_MESSENGER_STATE_STOPPED)
-			{
-				STRICT_EXPECTED_CALL(twin_messenger_start(TEST_TWIN_MESSENGER_HANDLE, TEST_SESSION_HANDLE));
-			}
-			else if (twin_msgr_state == TWIN_MESSENGER_STATE_STARTING)
-			{
-				set_expected_calls_for_is_timeout_reached(current_time);
-			}
+            if (twin_msgr_state == TWIN_MESSENGER_STATE_STOPPED)
+            {
+                STRICT_EXPECTED_CALL(twin_messenger_start(TEST_TWIN_MESSENGER_HANDLE, TEST_SESSION_HANDLE));
+            }
+            else if (twin_msgr_state == TWIN_MESSENGER_STATE_STARTING)
+            {
+                set_expected_calls_for_is_timeout_reached(current_time);
+            }
         }
     }
 
@@ -578,10 +579,10 @@ static void set_expected_calls_for_device_do_work(DEVICE_CONFIG* config, time_t 
         STRICT_EXPECTED_CALL(telemetry_messenger_do_work(TEST_TELEMETRY_MESSENGER_HANDLE));
     }
 
-	if (twin_msgr_state != TWIN_MESSENGER_STATE_STOPPED && twin_msgr_state != TWIN_MESSENGER_STATE_ERROR)
-	{
-		STRICT_EXPECTED_CALL(twin_messenger_do_work(TEST_TWIN_MESSENGER_HANDLE));
-	}
+    if (twin_msgr_state != TWIN_MESSENGER_STATE_STOPPED && twin_msgr_state != TWIN_MESSENGER_STATE_ERROR)
+    {
+        STRICT_EXPECTED_CALL(twin_messenger_do_work(TEST_TWIN_MESSENGER_HANDLE));
+    }
 }
 
 static void set_expected_calls_for_device_destroy(DEVICE_HANDLE handle, DEVICE_CONFIG *config, time_t current_time, DEVICE_STATE device_state, AUTHENTICATION_STATE auth_state, TELEMETRY_MESSENGER_STATE msgr_state, TWIN_MESSENGER_STATE twin_msgr_state)
@@ -592,7 +593,7 @@ static void set_expected_calls_for_device_destroy(DEVICE_HANDLE handle, DEVICE_C
     }
 
     STRICT_EXPECTED_CALL(telemetry_messenger_destroy(TEST_TELEMETRY_MESSENGER_HANDLE));
-	STRICT_EXPECTED_CALL(twin_messenger_destroy(TEST_TWIN_MESSENGER_HANDLE));
+    STRICT_EXPECTED_CALL(twin_messenger_destroy(TEST_TWIN_MESSENGER_HANDLE));
 
     if (config->authentication_mode == DEVICE_AUTH_MODE_CBS && auth_state != AUTHENTICATION_STATE_STOPPED)
     {
@@ -722,12 +723,12 @@ static void set_messenger_state(TELEMETRY_MESSENGER_STATE previous_state, TELEME
 
 static void set_twin_messenger_state(TWIN_MESSENGER_STATE previous_state, TWIN_MESSENGER_STATE new_state, time_t current_time)
 {
-	STRICT_EXPECTED_CALL(get_time(NULL)).SetReturn(current_time);
+    STRICT_EXPECTED_CALL(get_time(NULL)).SetReturn(current_time);
 
-	TEST_twin_messenger_create_on_state_changed_callback(
-		TEST_twin_messenger_create_on_state_changed_context,
-		previous_state,
-		new_state);
+    TEST_twin_messenger_create_on_state_changed_callback(
+        TEST_twin_messenger_create_on_state_changed_context,
+        previous_state,
+        new_state);
 }
 
 static DEVICE_HANDLE create_and_start_and_crank_device(DEVICE_CONFIG* config, time_t current_time)
@@ -742,10 +743,10 @@ static DEVICE_HANDLE create_and_start_and_crank_device(DEVICE_CONFIG* config, ti
     crank_device_do_work(handle, config, current_time, DEVICE_STATE_STARTING, AUTHENTICATION_STATE_STARTED, TELEMETRY_MESSENGER_STATE_STOPPED, TWIN_MESSENGER_STATE_STOPPED);
     
     set_messenger_state(TELEMETRY_MESSENGER_STATE_STOPPED, TELEMETRY_MESSENGER_STATE_STARTING, TEST_current_time);
-	set_twin_messenger_state(TWIN_MESSENGER_STATE_STOPPED, TWIN_MESSENGER_STATE_STARTING, TEST_current_time);
+    set_twin_messenger_state(TWIN_MESSENGER_STATE_STOPPED, TWIN_MESSENGER_STATE_STARTING, TEST_current_time);
 
-	set_messenger_state(TELEMETRY_MESSENGER_STATE_STARTING, TELEMETRY_MESSENGER_STATE_STARTED, TEST_current_time);
-	set_twin_messenger_state(TWIN_MESSENGER_STATE_STARTING, TWIN_MESSENGER_STATE_STARTED, TEST_current_time);
+    set_messenger_state(TELEMETRY_MESSENGER_STATE_STARTING, TELEMETRY_MESSENGER_STATE_STARTED, TEST_current_time);
+    set_twin_messenger_state(TWIN_MESSENGER_STATE_STARTING, TWIN_MESSENGER_STATE_STARTED, TEST_current_time);
     
     crank_device_do_work(handle, config, current_time, DEVICE_STATE_STARTING, AUTHENTICATION_STATE_STARTED, TELEMETRY_MESSENGER_STATE_STARTED, TWIN_MESSENGER_STATE_STARTED);
 
@@ -792,11 +793,12 @@ TEST_FUNCTION_INITIALIZE(TestMethodInitialize)
 
     umock_c_reset_all_calls();
 
-    initialize_test_variables();
+    reset_test_data();
 }
 
 TEST_FUNCTION_CLEANUP(TestMethodCleanup)
 {
+    reset_test_data();
     TEST_MUTEX_RELEASE(g_testByTest);
 }
 
@@ -2273,7 +2275,7 @@ TEST_FUNCTION(device_do_work_telemetry_messenger_start_FAILED)
     ASSERT_IS_NOT_NULL(TEST_telemetry_messenger_create_saved_on_state_changed_callback);
 
     set_messenger_state(TELEMETRY_MESSENGER_STATE_STOPPED, TELEMETRY_MESSENGER_STATE_STARTING, TEST_current_time);
-	set_twin_messenger_state(TWIN_MESSENGER_STATE_STOPPED, TWIN_MESSENGER_STATE_STARTING, TEST_current_time);
+    set_twin_messenger_state(TWIN_MESSENGER_STATE_STOPPED, TWIN_MESSENGER_STATE_STARTING, TEST_current_time);
     set_messenger_state(TELEMETRY_MESSENGER_STATE_STARTING, TELEMETRY_MESSENGER_STATE_ERROR, TEST_current_time);
 
     set_expected_calls_for_device_do_work(config, TEST_current_time, DEVICE_STATE_STARTING, AUTHENTICATION_STATE_STARTED, TELEMETRY_MESSENGER_STATE_ERROR, TWIN_MESSENGER_STATE_STARTING);
@@ -2311,10 +2313,10 @@ TEST_FUNCTION(device_do_work_telemetry_messenger_start_timeout)
 
     crank_device_do_work(handle, config, TEST_current_time, DEVICE_STATE_STARTING, AUTHENTICATION_STATE_STARTED, TELEMETRY_MESSENGER_STATE_STOPPED, TWIN_MESSENGER_STATE_STOPPED);
 
-	ASSERT_IS_NOT_NULL(TEST_telemetry_messenger_create_saved_on_state_changed_callback);
-	ASSERT_IS_NOT_NULL(TEST_twin_messenger_create_on_state_changed_callback);
-	set_messenger_state(TELEMETRY_MESSENGER_STATE_STOPPED, TELEMETRY_MESSENGER_STATE_STARTING, TEST_current_time);
-	set_twin_messenger_state(TWIN_MESSENGER_STATE_STOPPED, TWIN_MESSENGER_STATE_STARTING, TEST_current_time);
+    ASSERT_IS_NOT_NULL(TEST_telemetry_messenger_create_saved_on_state_changed_callback);
+    ASSERT_IS_NOT_NULL(TEST_twin_messenger_create_on_state_changed_callback);
+    set_messenger_state(TELEMETRY_MESSENGER_STATE_STOPPED, TELEMETRY_MESSENGER_STATE_STARTING, TEST_current_time);
+    set_twin_messenger_state(TWIN_MESSENGER_STATE_STOPPED, TWIN_MESSENGER_STATE_STARTING, TEST_current_time);
 
     set_expected_calls_for_device_do_work(config, next_time, DEVICE_STATE_STARTING, AUTHENTICATION_STATE_STARTED, TELEMETRY_MESSENGER_STATE_STARTING, TWIN_MESSENGER_STATE_STARTING);
 
@@ -2360,12 +2362,12 @@ TEST_FUNCTION(device_do_work_succeeds)
     set_authentication_state(AUTHENTICATION_STATE_STARTING, AUTHENTICATION_STATE_STARTED, t1);
 
     crank_device_do_work(handle, config, t2, DEVICE_STATE_STARTING, AUTHENTICATION_STATE_STARTED, TELEMETRY_MESSENGER_STATE_STOPPED, TWIN_MESSENGER_STATE_STOPPED);
-	set_messenger_state(TELEMETRY_MESSENGER_STATE_STOPPED, TELEMETRY_MESSENGER_STATE_STARTING, t2);
-	set_twin_messenger_state(TWIN_MESSENGER_STATE_STOPPED, TWIN_MESSENGER_STATE_STARTING, t2);
+    set_messenger_state(TELEMETRY_MESSENGER_STATE_STOPPED, TELEMETRY_MESSENGER_STATE_STARTING, t2);
+    set_twin_messenger_state(TWIN_MESSENGER_STATE_STOPPED, TWIN_MESSENGER_STATE_STARTING, t2);
 
     crank_device_do_work(handle, config, t3, DEVICE_STATE_STARTING, AUTHENTICATION_STATE_STARTED, TELEMETRY_MESSENGER_STATE_STARTING, TWIN_MESSENGER_STATE_STARTING);
     set_messenger_state(TELEMETRY_MESSENGER_STATE_STARTING, TELEMETRY_MESSENGER_STATE_STARTED, t3);
-	set_twin_messenger_state(TWIN_MESSENGER_STATE_STARTING, TWIN_MESSENGER_STATE_STARTED, t3);
+    set_twin_messenger_state(TWIN_MESSENGER_STATE_STARTING, TWIN_MESSENGER_STATE_STARTED, t3);
 
     set_expected_calls_for_device_do_work(config, t4, DEVICE_STATE_STARTING, AUTHENTICATION_STATE_STARTED, TELEMETRY_MESSENGER_STATE_STARTED, TWIN_MESSENGER_STATE_STARTED);
 
@@ -2419,7 +2421,7 @@ TEST_FUNCTION(device_do_work_STARTED_messenger_unexpected_state)
     DEVICE_CONFIG* config = get_device_config(DEVICE_AUTH_MODE_CBS);
     DEVICE_HANDLE handle = create_and_start_and_crank_device(config, TEST_current_time);
 
-	set_messenger_state(TELEMETRY_MESSENGER_STATE_STARTED, TELEMETRY_MESSENGER_STATE_ERROR, TEST_current_time);
+    set_messenger_state(TELEMETRY_MESSENGER_STATE_STARTED, TELEMETRY_MESSENGER_STATE_ERROR, TEST_current_time);
 
     set_expected_calls_for_device_do_work(config, TEST_current_time, DEVICE_STATE_STARTED, AUTHENTICATION_STATE_STARTED, TELEMETRY_MESSENGER_STATE_ERROR, TWIN_MESSENGER_STATE_STARTED);
 
