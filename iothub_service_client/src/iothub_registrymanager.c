@@ -94,9 +94,182 @@ static const char* RELATIVE_PATH_FMT_STAT = "/statistics/devices?%s";
 static const char* RELATIVE_PATH_FMT_MODULE_LIST = "/devices/%s/modules?%s";
 
 
-typedef IOTHUB_REGISTRY_MODULE_CREATE  IOTHUB_REGISTRY_DEVICE_OR_MODULE_CREATE;
-typedef IOTHUB_MODULE IOTHUB_DEVICE_OR_MODULE;
+//typedef IOTHUB_REGISTRY_MODULE_CREATE IOTHUB_REGISTRY_DEVICE_OR_MODULE_CREATE;
+//typedef IOTHUB_MODULE IOTHUB_DEVICE_OR_MODULE_MASTER;
 typedef IOTHUB_REGISTRY_MODULE_UPDATE IOTHUB_REGISTRY_DEVICE_OR_MODULE_UPDATE;
+
+typedef enum {TYPE_DEVICE, TYPE_MODULE} TYPE_DEVICE_OR_MODULE;
+
+typedef struct IOTHUB_DEVICE_OR_MODULE_MASTER_TAG
+{
+    int version;
+    const char* deviceId;
+    const char* primaryKey;
+    const char* secondaryKey;
+    const char* generationId;
+    const char* eTag;
+    IOTHUB_DEVICE_CONNECTION_STATE connectionState;
+    const char* connectionStateUpdatedTime;
+    IOTHUB_DEVICE_STATUS status;
+    const char* statusReason;
+    const char* statusUpdatedTime;
+    const char* lastActivityTime;
+    size_t cloudToDeviceMessageCount;
+
+    bool isManaged;
+    const char* configuration;
+    const char* deviceProperties;
+    const char* serviceProperties;
+    IOTHUB_REGISTRYMANAGER_AUTH_METHOD authMethod;
+
+    TYPE_DEVICE_OR_MODULE type;
+
+    //Device exclusive fields
+    bool iotEdge_capable;
+
+    //Module exclusive fields
+    const char* moduleId;
+} IOTHUB_DEVICE_OR_MODULE_MASTER;
+
+typedef struct IOTHUB_REGISTRY_DEVICE_OR_MODULE_CREATE_TAG
+{
+    const char* deviceId;
+    const char* primaryKey;
+    const char* secondaryKey;
+    IOTHUB_REGISTRYMANAGER_AUTH_METHOD authMethod;
+    TYPE_DEVICE_OR_MODULE type;
+    //Device exclusive fields
+    bool iotEdge_capable;
+    //Module exclusive fields
+    const char* moduleId;
+} IOTHUB_REGISTRY_DEVICE_OR_MODULE_CREATE;
+
+typedef struct IOTHUB_REGISTRY_DEVICE_OR_MODULE_UPDATE_TAG
+{
+    const char* deviceId;
+    const char* primaryKey;
+    const char* secondaryKey;
+    IOTHUB_DEVICE_STATUS status;
+    IOTHUB_REGISTRYMANAGER_AUTH_METHOD authMethod;
+    TYPE_DEVICE_OR_MODULE type;
+    //Device exclusive fields
+    bool iotEdge_capable;
+    //Module exclusive fields
+    const char* moduleId;
+} IOTHUB_REGISTRY_DEVICE_OR_MODULE_UPDATE;
+
+static int copy_master_record_to_device(IOTHUB_DEVICE_OR_MODULE_MASTER* master, IOTHUB_DEVICE* device)
+{
+    int result;
+    if ((master == NULL) || (device == NULL))
+    {
+        result = __FAILURE__;
+    }
+    else
+    {
+        device->connectionState = master->connectionState;
+        device->status = master->status;
+        device->cloudToDeviceMessageCount = master->cloudToDeviceMessageCount;
+        device->isManaged = master->isManaged;
+        device->authMethod = master->authMethod;
+
+        if ((mallocAndStrcpy_s(device->deviceId, master->deviceId) != 0) ||
+            (mallocAndStrcpy_s(device->primaryKey, master->primaryKey) != 0) ||
+            (mallocAndStrcpy_s(device->secondaryKey, master->secondaryKey) != 0) ||
+            (mallocAndStrcpy_s(device->generationId, master->generationId) != 0) ||
+            (mallocAndStrcpy_s(device->eTag, master->eTag) != 0) ||
+            (mallocAndStrcpy_s(device->connectionStateUpdatedTime, master->connectionStateUpdatedTime) != 0) ||
+            (mallocAndStrcpy_s(device->statusReason, master->statusReason) != 0) ||
+            (mallocAndStrcpy_s(device->statusUpdatedTime, master->statusUpdatedTime) != 0) ||
+            (mallocAndStrcpy_s(device->lastActivityTime, master->lastActivityTime) != 0) ||
+            (mallocAndStrcpy_s(device->configuration, master->configuration) != 0) ||
+            (mallocAndStrcpy_s(device->deviceProperties, master->deviceProperties) != 0) ||
+            (mallocAndStrcpy_s(device->serviceProperties, master->serviceProperties) != 0))
+        {
+            result = __FAILURE__;
+        }
+        else
+        {
+            result = 0;
+        }
+    }
+    return result;
+}
+
+static int copy_master_record_to_deviceEx(IOTHUB_DEVICE_OR_MODULE_MASTER* master, IOTHUB_DEVICE_EX* device)
+{
+    int result;
+    if ((master == NULL) || (device == NULL))
+    {
+        result = __FAILURE__;
+    }
+    else
+    {
+        device->version = IOTHUB_DEVICE_EX_VERSION_LATEST;
+        device->connectionState = master->connectionState;
+        device->status = master->status;
+        device->cloudToDeviceMessageCount = master->cloudToDeviceMessageCount;
+        device->isManaged = master->isManaged;
+        device->authMethod = master->authMethod;
+        device->iotEdge_capable = master->iotEdge_capable;
+
+        if ((mallocAndStrcpy_s(device->deviceId, master->deviceId) != 0) ||
+            (mallocAndStrcpy_s(device->primaryKey, master->primaryKey) != 0) ||
+            (mallocAndStrcpy_s(device->secondaryKey, master->secondaryKey) != 0) ||
+            (mallocAndStrcpy_s(device->generationId, master->generationId) != 0) ||
+            (mallocAndStrcpy_s(device->eTag, master->eTag) != 0) ||
+            (mallocAndStrcpy_s(device->connectionStateUpdatedTime, master->connectionStateUpdatedTime) != 0) ||
+            (mallocAndStrcpy_s(device->statusReason, master->statusReason) != 0) ||
+            (mallocAndStrcpy_s(device->statusUpdatedTime, master->statusUpdatedTime) != 0) ||
+            (mallocAndStrcpy_s(device->lastActivityTime, master->lastActivityTime) != 0) ||
+            (mallocAndStrcpy_s(device->configuration, master->configuration) != 0) ||
+            (mallocAndStrcpy_s(device->deviceProperties, master->deviceProperties) != 0) ||
+            (mallocAndStrcpy_s(device->serviceProperties, master->serviceProperties) != 0))
+        {
+            result = __FAILURE__;
+        }
+        else
+        {
+            result = 0;
+        }
+    }
+    return result;
+}
+
+
+// static IOTHUB_DEVICE_OR_MODULE_MASTER* create_master_record_from_device(IOTHUB_DEVICE* device)
+// {
+//     IOTHUB_DEVICE_OR_MODULE_MASTER* master_record = malloc(sizeof(IOTHUB_DEVICE_OR_MODULE_MASTER));
+//     if (master_record != NULL)
+//     {
+//         master_record->deviceId = device->deviceId;
+//         master_record->primaryKey = device->primaryKey;
+//         master_record->secondaryKey = device->secondaryKey;
+//         master_record->generationId = device->generationId;
+//         master_record->eTag = device->eTag;
+//         master_record->connectionState = device->connectionState;
+//         master_record->connectionStateUpdatedTime = device->connectionStateUpdatedTime;
+//         master_record->status = device->status;
+//         master_record->statusReason = device->statusReason;
+//         master_record->statusUpdatedTime = device->statusUpdatedTime;
+//         master_record->lastActivityTime = device->lastActivityTime;
+//         master_record->cloudToDeviceMessageCount = device->cloudToDeviceMessageCount;
+//         master_record->isManaged = device->isManaged;
+//         master_record->configuration = device->configuration;
+//         master_record->deviceProperties = device->deviceProperties;
+//         master_record->serviceProperties = device->serviceProperties;
+//         master_record->authMethod = device->authMethod;
+
+//         master_record->type = TYPE_DEVICE;
+
+//     }
+//     return master_record;
+// }
+
+
+
+
+
 
 
 static bool isAuthTypeAllowed(IOTHUB_REGISTRYMANAGER_AUTH_METHOD authMethod)
@@ -175,7 +348,7 @@ static const char *getAuthTypeStringForJson(IOTHUB_REGISTRYMANAGER_AUTH_METHOD a
     return authTypeForJson;
 }
 
-static BUFFER_HANDLE constructDeviceOrModuleJson(const IOTHUB_DEVICE_OR_MODULE* deviceOrModuleInfo)
+static BUFFER_HANDLE constructDeviceOrModuleJson(const IOTHUB_DEVICE_OR_MODULE_MASTER* deviceOrModuleInfo)
 {
     BUFFER_HANDLE result;
 
@@ -311,7 +484,7 @@ static BUFFER_HANDLE constructDeviceOrModuleJson(const IOTHUB_DEVICE_OR_MODULE* 
     return result;
 }
 
-static IOTHUB_REGISTRYMANAGER_RESULT parseDeviceOrModuleJsonObject(JSON_Object* root_object, IOTHUB_DEVICE_OR_MODULE* deviceOrModuleInfo)
+static IOTHUB_REGISTRYMANAGER_RESULT parseDeviceOrModuleJsonObject(JSON_Object* root_object, IOTHUB_DEVICE_OR_MODULE_MASTER* deviceOrModuleInfo)
 {
     IOTHUB_REGISTRYMANAGER_RESULT result;
 
@@ -490,18 +663,18 @@ static IOTHUB_REGISTRYMANAGER_RESULT parseDeviceOrModuleJsonObject(JSON_Object* 
     return result;
 }
 
-static void initializeDeviceOrModuleInfoMembers(IOTHUB_DEVICE_OR_MODULE* deviceOrModuleInfo)
+static void initializeDeviceOrModuleInfoMembers(IOTHUB_DEVICE_OR_MODULE_MASTER* deviceOrModuleInfo)
 {
     if (NULL != deviceOrModuleInfo)
     {
-        memset(deviceOrModuleInfo, 0, sizeof(IOTHUB_DEVICE_OR_MODULE));
+        memset(deviceOrModuleInfo, 0, sizeof(IOTHUB_DEVICE_OR_MODULE_MASTER));
         deviceOrModuleInfo->connectionState = IOTHUB_DEVICE_CONNECTION_STATE_DISCONNECTED;
         deviceOrModuleInfo->status = IOTHUB_DEVICE_STATUS_DISABLED;
     }
 }
 
 // Frees memory allocated building up deviceInfo, but *NOT* deviceInfo itself as we don't own this
-static void freeDeviceInfoOrModulesMembers(IOTHUB_DEVICE_OR_MODULE* deviceInfo)
+static void freeDeviceInfoOrModulesMembers(IOTHUB_DEVICE_OR_MODULE_MASTER* deviceInfo)
 {
     if (deviceInfo->deviceId != NULL)
     {
@@ -556,10 +729,10 @@ static void freeDeviceInfoOrModulesMembers(IOTHUB_DEVICE_OR_MODULE* deviceInfo)
         free((void*)deviceInfo->moduleId);
     }
 
-    memset(deviceInfo, 0, sizeof(IOTHUB_DEVICE_OR_MODULE));
+    memset(deviceInfo, 0, sizeof(IOTHUB_DEVICE_OR_MODULE_MASTER));
 }
 
-static IOTHUB_REGISTRYMANAGER_RESULT parseDeviceOrModuleJson(BUFFER_HANDLE jsonBuffer, IOTHUB_DEVICE_OR_MODULE* deviceOrModuleInfo)
+static IOTHUB_REGISTRYMANAGER_RESULT parseDeviceOrModuleJson(BUFFER_HANDLE jsonBuffer, IOTHUB_DEVICE_OR_MODULE_MASTER* deviceOrModuleInfo)
 {
     IOTHUB_REGISTRYMANAGER_RESULT result;
 
@@ -677,11 +850,11 @@ static IOTHUB_REGISTRYMANAGER_RESULT parseDeviceOrModuleListJson(BUFFER_HANDLE j
             size_t array_count = json_array_get_count(device_or_module_array);
             for (size_t i = 0; i < array_count; i++)
             {
-                IOTHUB_DEVICE_OR_MODULE* iothubDeviceOrModule = NULL;
+                IOTHUB_DEVICE_OR_MODULE_MASTER* iothubDeviceOrModule = NULL;
                 JSON_Object* device_or_module_object = NULL;
 
                 // Create temp device struct
-                if ((iothubDeviceOrModule = (IOTHUB_DEVICE_OR_MODULE*)malloc(sizeof(IOTHUB_DEVICE_OR_MODULE))) == NULL)
+                if ((iothubDeviceOrModule = (IOTHUB_DEVICE_OR_MODULE_MASTER*)malloc(sizeof(IOTHUB_DEVICE_OR_MODULE_MASTER))) == NULL)
                 {
                     /*Codes_SRS_IOTHUBREGISTRYMANAGER_12_072: [** If populating the deviceList parameter fails IoTHubRegistryManager_GetDeviceList shall return IOTHUB_REGISTRYMANAGER_ERROR **] */
                     LogError("Malloc failed for iothubDeviceOrModule");
@@ -749,7 +922,7 @@ static IOTHUB_REGISTRYMANAGER_RESULT parseDeviceOrModuleListJson(BUFFER_HANDLE j
             LIST_ITEM_HANDLE itemHandle = singlylinkedlist_get_head_item(deviceOrModuleList);
             while (itemHandle != NULL)
             {
-                IOTHUB_DEVICE_OR_MODULE* deviceOrModuleInfo = (IOTHUB_DEVICE_OR_MODULE*)singlylinkedlist_item_get_value(itemHandle);
+                IOTHUB_DEVICE_OR_MODULE_MASTER* deviceOrModuleInfo = (IOTHUB_DEVICE_OR_MODULE_MASTER*)singlylinkedlist_item_get_value(itemHandle);
                 LIST_ITEM_HANDLE lastHandle = itemHandle;
                 itemHandle = singlylinkedlist_get_next_item(itemHandle);
 
@@ -1248,7 +1421,7 @@ void IoTHubRegistryManager_Destroy(IOTHUB_REGISTRYMANAGER_HANDLE registryManager
     }
 }
 
-static IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_CreateDeviceOrModule(IOTHUB_REGISTRYMANAGER_HANDLE registryManagerHandle, const IOTHUB_REGISTRY_DEVICE_OR_MODULE_CREATE* deviceOrModuleCreateInfo, IOTHUB_DEVICE_OR_MODULE* deviceOrModuleInfo)
+static IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_CreateDeviceOrModule(IOTHUB_REGISTRYMANAGER_HANDLE registryManagerHandle, const IOTHUB_REGISTRY_DEVICE_OR_MODULE_CREATE* deviceOrModuleCreateInfo, IOTHUB_DEVICE_OR_MODULE_MASTER* deviceOrModuleInfo)
 {
     IOTHUB_REGISTRYMANAGER_RESULT result;
 
@@ -1283,8 +1456,8 @@ static IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_CreateDeviceOrModule(
         else
         {
             /*Codes_SRS_IOTHUBREGISTRYMANAGER_12_095: [ IoTHubRegistryManager_CreateDevice shall allocate memory for device info structure by calling malloc ] */
-            IOTHUB_DEVICE_OR_MODULE* tempDeviceOrModuleInfo;
-            if ((tempDeviceOrModuleInfo = malloc(sizeof(IOTHUB_DEVICE_OR_MODULE))) == NULL)
+            IOTHUB_DEVICE_OR_MODULE_MASTER* tempDeviceOrModuleInfo;
+            if ((tempDeviceOrModuleInfo = malloc(sizeof(IOTHUB_DEVICE_OR_MODULE_MASTER))) == NULL)
             {
                 /*Codes_SRS_IOTHUBREGISTRYMANAGER_12_096 : [ If the malloc fails, IoTHubRegistryManager_Create shall do clean up and return IOTHUB_REGISTRYMANAGER_ERROR. ] */
                 LogError("Malloc failed for tempDeviceOrModuleInfo");
@@ -1373,16 +1546,21 @@ IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_CreateDevice(IOTHUB_REGISTRY
     else
     {
         IOTHUB_REGISTRY_DEVICE_OR_MODULE_CREATE deviceOrModuleCreateInfo;
-        IOTHUB_DEVICE_OR_MODULE deviceOrModuleInfo;
-    
-        memcpy(&deviceOrModuleCreateInfo, deviceCreateInfo, sizeof(*deviceCreateInfo));
-        deviceOrModuleCreateInfo.moduleId = NULL;
-        deviceOrModuleInfo.moduleId = NULL;
+        IOTHUB_DEVICE_OR_MODULE_MASTER deviceOrModuleInfo;
+
+        memset(&deviceOrModuleCreateInfo, 0, sizeof(deviceOrModuleCreateInfo));
+        deviceOrModuleCreateInfo.deviceId = deviceCreateInfo->deviceId;
+        deviceOrModuleCreateInfo.primaryKey = deviceCreateInfo->primaryKey;
+        deviceOrModuleCreateInfo.secondaryKey = deviceCreateInfo->secondaryKey;
+        deviceOrModuleCreateInfo.authMethod = deviceCreateInfo->authMethod;
+        deviceOrModuleCreateInfo.type = TYPE_DEVICE;
+        deviceOrModuleCreateInfo.iotEdge_capable = false; //IOTHUB_DEVICE does not have this field, so set it to disabled
 
         result = IoTHubRegistryManager_CreateDeviceOrModule(registryManagerHandle, &deviceOrModuleCreateInfo, &deviceOrModuleInfo);
         if (result == IOTHUB_REGISTRYMANAGER_OK)
         {
-            memcpy(deviceInfo, &deviceOrModuleInfo, sizeof(*deviceInfo));   
+            copy_master_record_to_device(&deviceOrModuleInfo, deviceInfo);
+            //maybe have to free stuff here?
         }
         free((void*)deviceOrModuleInfo.moduleId);
     }
@@ -1390,7 +1568,7 @@ IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_CreateDevice(IOTHUB_REGISTRY
     return result;
 }
 
-IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_GetDeviceOrModule(IOTHUB_REGISTRYMANAGER_HANDLE registryManagerHandle, const char* deviceId, const char* moduleId, IOTHUB_DEVICE_OR_MODULE* deviceOrModuleInfo)
+IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_GetDeviceOrModule(IOTHUB_REGISTRYMANAGER_HANDLE registryManagerHandle, const char* deviceId, const char* moduleId, IOTHUB_DEVICE_OR_MODULE_MASTER* deviceOrModuleInfo)
 {
     IOTHUB_REGISTRYMANAGER_RESULT result;
 
@@ -1456,7 +1634,7 @@ IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_GetDevice(IOTHUB_REGISTRYMAN
     }
     else
     {
-        IOTHUB_DEVICE_OR_MODULE deviceOrModuleInfo;
+        IOTHUB_DEVICE_OR_MODULE_MASTER deviceOrModuleInfo;
         memset(&deviceOrModuleInfo, 0, sizeof(deviceOrModuleInfo));
     
         result = IoTHubRegistryManager_GetDeviceOrModule(registryManagerHandle, deviceId, NULL, &deviceOrModuleInfo);
@@ -1497,8 +1675,8 @@ IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_UpdateDeviceOrModule(IOTHUB_
         else
         {
             /*Codes_SRS_IOTHUBREGISTRYMANAGER_12_106: [ IoTHubRegistryManager_UpdateDevice shall allocate memory for device info structure by calling malloc ] */
-            IOTHUB_DEVICE_OR_MODULE* tempDeviceOrModuleInfo;
-            if ((tempDeviceOrModuleInfo = malloc(sizeof(IOTHUB_DEVICE_OR_MODULE))) == NULL)
+            IOTHUB_DEVICE_OR_MODULE_MASTER* tempDeviceOrModuleInfo;
+            if ((tempDeviceOrModuleInfo = malloc(sizeof(IOTHUB_DEVICE_OR_MODULE_MASTER))) == NULL)
             {
                 /*Codes_SRS_IOTHUBREGISTRYMANAGER_12_108: [ If the malloc fails, IoTHubRegistryManager_UpdateDevice shall do clean up and return NULL ] */
                 LogError("Malloc failed for tempDeviceOrModuleInfo");
@@ -1507,7 +1685,7 @@ IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_UpdateDeviceOrModule(IOTHUB_
             else
             {
                 /*Codes_SRS_IOTHUBREGISTRYMANAGER_12_118: [ IoTHubRegistryManager_CreateDevice shall set the "status" value to the deviceCreateInfo->status ] */
-                (void)memset(tempDeviceOrModuleInfo, 0, sizeof(IOTHUB_DEVICE_OR_MODULE));
+                (void)memset(tempDeviceOrModuleInfo, 0, sizeof(IOTHUB_DEVICE_OR_MODULE_MASTER));
                 tempDeviceOrModuleInfo->deviceId = deviceOrModuleUpdate->deviceId;
                 tempDeviceOrModuleInfo->primaryKey = deviceOrModuleUpdate->primaryKey;
                 tempDeviceOrModuleInfo->secondaryKey = deviceOrModuleUpdate->secondaryKey;
@@ -1729,7 +1907,7 @@ IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_CreateModule(IOTHUB_REGISTRY
 {
     IOTHUB_REGISTRYMANAGER_RESULT result;
     IOTHUB_REGISTRY_DEVICE_OR_MODULE_CREATE* deviceOrModuleCreateInfo = (IOTHUB_REGISTRY_DEVICE_OR_MODULE_CREATE*)moduleCreate;
-    IOTHUB_DEVICE_OR_MODULE* deviceOrModuleInfo = (IOTHUB_DEVICE_OR_MODULE*)module;
+    IOTHUB_DEVICE_OR_MODULE_MASTER* deviceOrModuleInfo = (IOTHUB_DEVICE_OR_MODULE_MASTER*)module;
 
     if ((moduleCreate == NULL) || (moduleCreate->moduleId == NULL))
     {
@@ -1752,7 +1930,7 @@ IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_CreateModule(IOTHUB_REGISTRY
 IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_GetModule(IOTHUB_REGISTRYMANAGER_HANDLE registryManagerHandle, const char* deviceId, const char* moduleId, IOTHUB_MODULE* module)
 {
     IOTHUB_REGISTRYMANAGER_RESULT result;
-    IOTHUB_DEVICE_OR_MODULE* deviceOrModuleInfo = (IOTHUB_DEVICE_OR_MODULE*)module;
+    IOTHUB_DEVICE_OR_MODULE_MASTER* deviceOrModuleInfo = (IOTHUB_DEVICE_OR_MODULE_MASTER*)module;
 
     if ((deviceId == NULL) || (moduleId == NULL) || (module == NULL))
     {

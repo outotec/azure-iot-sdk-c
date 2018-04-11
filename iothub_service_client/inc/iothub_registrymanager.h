@@ -40,6 +40,36 @@ DEFINE_ENUM(IOTHUB_REGISTRYMANAGER_RESULT, IOTHUB_REGISTRYMANAGER_RESULT_VALUES)
 
 DEFINE_ENUM(IOTHUB_REGISTRYMANAGER_AUTH_METHOD, IOTHUB_REGISTRYMANAGER_AUTH_METHOD_VALUES);
 
+#define IOTHUB_DEVICE_EX_VERSION_0 0    //same fields as IOTHUB_DEVICE
+#define IOTHUB_DEVICE_EX_VERSION_1 1
+#define IOTHUB_DEVICE_EX_VERSION_LATEST IOTHUB_DEVICE_EX_VERSION_1
+
+typedef struct IOTHUB_DEVICE_EX_TAG
+{
+    int version;
+    const char* deviceId;                           //version 0+
+    const char* primaryKey;                         //version 0+
+    const char* secondaryKey;                       //version 0+
+    const char* generationId;                       //version 0+
+    const char* eTag;                               //version 0+
+    IOTHUB_DEVICE_CONNECTION_STATE connectionState; //version 0+
+    const char* connectionStateUpdatedTime;         //version 0+
+    IOTHUB_DEVICE_STATUS status;                    //version 0+
+    const char* statusReason;                       //version 0+
+    const char* statusUpdatedTime;                  //version 0+
+    const char* lastActivityTime;                   //version 0+
+    size_t cloudToDeviceMessageCount;               //version 0+
+
+    bool isManaged;                                 //version 0+
+    const char* configuration;                      //version 0+
+    const char* deviceProperties;                   //version 0+
+    const char* serviceProperties;                  //version 0+
+    IOTHUB_REGISTRYMANAGER_AUTH_METHOD authMethod;  //version 0+
+
+    bool iotEdge_capable;                           //version 1+
+} IOTHUB_DEVICE_EX;
+
+/* Depricated, please use IOTHUB_DEVICE_EX instead */
 typedef struct IOTHUB_DEVICE_TAG
 {
     const char* deviceId;
@@ -60,8 +90,6 @@ typedef struct IOTHUB_DEVICE_TAG
     const char* deviceProperties;
     const char* serviceProperties;
     IOTHUB_REGISTRYMANAGER_AUTH_METHOD authMethod;
-
-    bool iotEdge_capable;
 } IOTHUB_DEVICE;
 
 typedef struct IOTHUB_REGISTRY_DEVICE_CREATE_TAG
@@ -70,7 +98,7 @@ typedef struct IOTHUB_REGISTRY_DEVICE_CREATE_TAG
     const char* primaryKey;
     const char* secondaryKey;
     IOTHUB_REGISTRYMANAGER_AUTH_METHOD authMethod;
-    bool iotEdge_capable;
+    //bool iotEdge_capable;
 } IOTHUB_REGISTRY_DEVICE_CREATE;
 
 typedef struct IOTHUB_REGISTRY_DEVICE_UPDATE_TAG
@@ -80,7 +108,7 @@ typedef struct IOTHUB_REGISTRY_DEVICE_UPDATE_TAG
     const char* secondaryKey;
     IOTHUB_DEVICE_STATUS status;
     IOTHUB_REGISTRYMANAGER_AUTH_METHOD authMethod;
-    bool iotEdge_capable;
+    //bool iotEdge_capable;
 } IOTHUB_REGISTRY_DEVICE_UPDATE;
 
 typedef struct IOTHUB_REGISTRY_STATISTIC_TAG
