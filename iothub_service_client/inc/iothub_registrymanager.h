@@ -70,47 +70,12 @@ typedef struct IOTHUB_DEVICE_EX_TAG
     bool iotEdge_capable;                           //version 1+
 } IOTHUB_DEVICE_EX;
 
-/* Depricated, please use IOTHUB_DEVICE_EX instead */
-typedef struct IOTHUB_DEVICE_TAG
-{
-    const char* deviceId;
-    const char* primaryKey;
-    const char* secondaryKey;
-    const char* generationId;
-    const char* eTag;
-    IOTHUB_DEVICE_CONNECTION_STATE connectionState;
-    const char* connectionStateUpdatedTime;
-    IOTHUB_DEVICE_STATUS status;
-    const char* statusReason;
-    const char* statusUpdatedTime;
-    const char* lastActivityTime;
-    size_t cloudToDeviceMessageCount;
-
-    bool isManaged;
-    const char* configuration;
-    const char* deviceProperties;
-    const char* serviceProperties;
-    IOTHUB_REGISTRYMANAGER_AUTH_METHOD authMethod;
-} IOTHUB_DEVICE;
-
-/* Depricated, please use IOTHUB_REGISTRY_DEVICE_CREATE_EX instead */
-typedef struct IOTHUB_REGISTRY_DEVICE_CREATE_TAG
-{
-    const char* deviceId;
-    const char* primaryKey;
-    const char* secondaryKey;
-    IOTHUB_REGISTRYMANAGER_AUTH_METHOD authMethod;
-} IOTHUB_REGISTRY_DEVICE_CREATE;
-
-/* Depricated, please use IOTHUB_REGISTRY_DEVICE_UPDATED_EX instead */
-typedef struct IOTHUB_REGISTRY_DEVICE_UPDATE_TAG
-{
-    const char* deviceId;
-    const char* primaryKey;
-    const char* secondaryKey;
-    IOTHUB_DEVICE_STATUS status;
-    IOTHUB_REGISTRYMANAGER_AUTH_METHOD authMethod;
-} IOTHUB_REGISTRY_DEVICE_UPDATE;
+/**
+* @brief    Free members of the IOTHUB_DEVICE_EX structure (NOT the structure itself)
+*
+* @param    deviceInfo      The structure to have its members freed.
+*/
+extern void free_deviceEx_members(IOTHUB_DEVICE_EX* deviceInfo);
 
 #define IOTHUB_REGISTRY_DEVICE_CREATE_EX_VERSION_0 0
 #define IOTHUB_REGISTRY_DEVICE_CREATE_EX_VERSION_1 1
@@ -173,6 +138,14 @@ typedef struct IOTHUB_MODULE_TAG
     const char* moduleId;
 } IOTHUB_MODULE;
 
+/**
+* @brief    Free members of the IOTHUB_MODULE structure (NOT the structure itself)
+*
+* @param    moduleInfo      The structure to have its members freed.
+*/
+extern void free_module_members(IOTHUB_MODULE* moduleInfo);
+
+
 #define IOTHUB_REGISTRY_MODULE_CREATE_VERSION_1 1
 #define IOTHUB_REGISTRY_MODULE_CREATE_VERSION_LATEST IOTHUB_REGISTRY_MODULE_CREATE_VERSION_1
 typedef struct IOTHUB_REGISTRY_MODULE_CREATE_TAG
@@ -189,6 +162,7 @@ typedef struct IOTHUB_REGISTRY_MODULE_CREATE_TAG
 #define IOTHUB_REGISTRY_MODULE_UPDATE_VERSION_LATEST IOTHUB_REGISTRY_MODULE_UPDATE_VERSION_1
 typedef struct IOTHUB_REGISTRY_MODULE_UPDATE_TAG
 {
+    int version;
     const char* deviceId;                           //version 1+
     const char* primaryKey;                         //version 1+
     const char* secondaryKey;                       //version 1+
@@ -213,7 +187,6 @@ typedef struct IOTHUB_REGISTRYMANAGER_TAG
 */
 typedef struct IOTHUB_REGISTRYMANAGER_TAG* IOTHUB_REGISTRYMANAGER_HANDLE;
 
-
 /**
 * @brief    Creates a IoT Hub Registry Manager handle for use it
 *           in consequent APIs.
@@ -236,15 +209,13 @@ extern void IoTHubRegistryManager_Destroy(IOTHUB_REGISTRYMANAGER_HANDLE registry
 * @brief    Creates a device on IoT Hub.
 *
 * @param    registryManagerHandle   The handle created by a call to the create function.
-* @param    deviceCreate            IOTHUB_REGISTRY_DEVICE_CREATE structure containing
+* @param    deviceCreate            IOTHUB_REGISTRY_DEVICE_CREATE_EX structure containing
 *                                   the new device Id, primaryKey (optional) and secondaryKey (optional)
 * @param    device                  Input parameter, if it is not NULL will contain the created device info structure
 *
 * @return   IOTHUB_REGISTRYMANAGER_RESULT_OK upon success or an error code upon failure.
 */
-extern IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_CreateDevice(IOTHUB_REGISTRYMANAGER_HANDLE registryManagerHandle, const IOTHUB_REGISTRY_DEVICE_CREATE* deviceCreate, IOTHUB_DEVICE* device);
-extern IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_CreateDeviceEx(IOTHUB_REGISTRYMANAGER_HANDLE registryManagerHandle, const IOTHUB_REGISTRY_DEVICE_CREATE* deviceCreate, IOTHUB_DEVICE_EX* device);
-
+extern IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_CreateDevice_Ex(IOTHUB_REGISTRYMANAGER_HANDLE registryManagerHandle, const IOTHUB_REGISTRY_DEVICE_CREATE_EX* deviceCreate, IOTHUB_DEVICE_EX* device);
 
 /**
 * @brief    Gets device info for a given device.
@@ -255,21 +226,19 @@ extern IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_CreateDeviceEx(IOTHUB
 *
 * @return   IOTHUB_REGISTRYMANAGER_RESULT_OK upon success or an error code upon failure.
 */
-extern IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_GetDevice(IOTHUB_REGISTRYMANAGER_HANDLE registryManagerHandle, const char* deviceId, IOTHUB_DEVICE* device);
-extern IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_GetDevice(IOTHUB_REGISTRYMANAGER_HANDLE registryManagerHandle, const char* deviceId, IOTHUB_DEVICE_EX* device);
+extern IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_GetDevice_Ex(IOTHUB_REGISTRYMANAGER_HANDLE registryManagerHandle, const char* deviceId, IOTHUB_DEVICE_EX* device);
 
 /**
 * @brief    Updates a device on IoT Hub.
 *
 * @param    registryManagerHandle   The handle created by a call to the create function.
-* @param    deviceUpdate            IOTHUB_REGISTRY_DEVICE_UPDATE structure containing
+* @param    deviceUpdate            IOTHUB_REGISTRY_DEVICE_UPDATE_EX structure containing
 *                                   the new device Id, primaryKey (optional), secondaryKey (optional),
 *                                   authentication method, and status
 *
 * @return   IOTHUB_REGISTRYMANAGER_RESULT_OK upon success or an error code upon failure.
 */
-extern IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_UpdateDevice(IOTHUB_REGISTRYMANAGER_HANDLE registryManagerHandle, IOTHUB_REGISTRY_DEVICE_UPDATE* deviceUpdate);
-extern IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_UpdateDevice(IOTHUB_REGISTRYMANAGER_HANDLE registryManagerHandle, IOTHUB_REGISTRY_DEVICE_UPDATE_EX* deviceUpdate);
+extern IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_UpdateDevice_Ex(IOTHUB_REGISTRYMANAGER_HANDLE registryManagerHandle, IOTHUB_REGISTRY_DEVICE_UPDATE_EX* deviceUpdate);
 
 /**
 * @brief    Deletes a given device.
@@ -360,6 +329,88 @@ extern IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_DeleteModule(IOTHUB_R
 * @return   IOTHUB_REGISTRYMANAGER_RESULT_OK upon success or an error code upon failure.
 */
 extern IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_GetModuleList(IOTHUB_REGISTRYMANAGER_HANDLE registryManagerHandle, const char* deviceId, SINGLYLINKEDLIST_HANDLE moduleList);
+
+
+/* DEPRECATED: THE FOLLOWING APIS ARE DEPRECATED, AND ARE ONLY BEING KEPT FOR BACK COMPAT. PLEASE DO NOT USE */
+/* DEPRECATED: THE FOLLOWING APIS ARE DEPRECATED, AND ARE ONLY BEING KEPT FOR BACK COMPAT. PLEASE DO NOT USE */
+/* DEPRECATED: THE FOLLOWING APIS ARE DEPRECATED, AND ARE ONLY BEING KEPT FOR BACK COMPAT. PLEASE DO NOT USE */
+
+/* Please use IOTHUB_DEVICE_EX instead */
+typedef struct IOTHUB_DEVICE_TAG
+{
+    const char* deviceId;
+    const char* primaryKey;
+    const char* secondaryKey;
+    const char* generationId;
+    const char* eTag;
+    IOTHUB_DEVICE_CONNECTION_STATE connectionState;
+    const char* connectionStateUpdatedTime;
+    IOTHUB_DEVICE_STATUS status;
+    const char* statusReason;
+    const char* statusUpdatedTime;
+    const char* lastActivityTime;
+    size_t cloudToDeviceMessageCount;
+
+    bool isManaged;
+    const char* configuration;
+    const char* deviceProperties;
+    const char* serviceProperties;
+    IOTHUB_REGISTRYMANAGER_AUTH_METHOD authMethod;
+} IOTHUB_DEVICE;
+
+/* Please use IOTHUB_REGISTRY_DEVICE_CREATE_EX instead */
+typedef struct IOTHUB_REGISTRY_DEVICE_CREATE_TAG
+{
+    const char* deviceId;
+    const char* primaryKey;
+    const char* secondaryKey;
+    IOTHUB_REGISTRYMANAGER_AUTH_METHOD authMethod;
+} IOTHUB_REGISTRY_DEVICE_CREATE;
+
+/* Please use IOTHUB_REGISTRY_DEVICE_UPDATED_EX instead */
+typedef struct IOTHUB_REGISTRY_DEVICE_UPDATE_TAG
+{
+    const char* deviceId;
+    const char* primaryKey;
+    const char* secondaryKey;
+    IOTHUB_DEVICE_STATUS status;
+    IOTHUB_REGISTRYMANAGER_AUTH_METHOD authMethod;
+} IOTHUB_REGISTRY_DEVICE_UPDATE;
+
+/** DEPRECATED:: Use IoTHubRegistryManager_CreateDevice_Ex instead
+* @brief    Creates a device on IoT Hub.
+*
+* @param    registryManagerHandle   The handle created by a call to the create function.
+* @param    deviceCreate            IOTHUB_REGISTRY_DEVICE_CREATE structure containing
+*                                   the new device Id, primaryKey (optional) and secondaryKey (optional)
+* @param    device                  Input parameter, if it is not NULL will contain the created device info structure
+*
+* @return   IOTHUB_REGISTRYMANAGER_RESULT_OK upon success or an error code upon failure.
+*/
+extern IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_CreateDevice(IOTHUB_REGISTRYMANAGER_HANDLE registryManagerHandle, const IOTHUB_REGISTRY_DEVICE_CREATE* deviceCreate, IOTHUB_DEVICE* device);
+
+/** DEPRECATED:: Use IoTHubRegistryManager_GetDevice_Ex instead
+* @brief    Gets device info for a given device.
+*
+* @param    registryManagerHandle   The handle created by a call to the create function.
+* @param    deviceId                The Id of the requested device.
+* @param    device                  Input parameter, if it is not NULL will contain the requested device info structure
+*
+* @return   IOTHUB_REGISTRYMANAGER_RESULT_OK upon success or an error code upon failure.
+*/
+extern IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_GetDevice(IOTHUB_REGISTRYMANAGER_HANDLE registryManagerHandle, const char* deviceId, IOTHUB_DEVICE* device);
+
+/**
+* @brief    Updates a device on IoT Hub.
+*
+* @param    registryManagerHandle   The handle created by a call to the create function.
+* @param    deviceUpdate            IOTHUB_REGISTRY_DEVICE_UPDATE structure containing
+*                                   the new device Id, primaryKey (optional), secondaryKey (optional),
+*                                   authentication method, and status
+*
+* @return   IOTHUB_REGISTRYMANAGER_RESULT_OK upon success or an error code upon failure.
+*/
+extern IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_UpdateDevice(IOTHUB_REGISTRYMANAGER_HANDLE registryManagerHandle, IOTHUB_REGISTRY_DEVICE_UPDATE* deviceUpdate);
 
 #ifdef __cplusplus
 }

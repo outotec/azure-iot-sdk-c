@@ -17,12 +17,14 @@
 #include "iothub_service_client_auth.h"
 #include "iothub_registrymanager.h"
 
+#include <vld.h>
+
 /* String containing Hostname, SharedAccessKeyName and SharedAccessKey in the format:                       */
 /* "HostName=<host_name>;SharedAccessKeyName=<shared_access_key_name>;SharedAccessKey=<shared_access_key>" */
-static const char* connectionString = "[IoTHub Connection String]";
-static const char* deviceId = "[Device Id]";
+static const char* connectionString = "HostName=carter-iot-hub.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=+6RyPANAAxWJZQR0Df4eEGY9z3+2+i5jnJkv+STTgAU=";
+static const char* deviceId = "reg-man-test";
 
-void printDeviceInfo(IOTHUB_DEVICE* device, int orderNum)
+void printDeviceInfo(IOTHUB_DEVICE_EX* device, int orderNum)
 {
     if ((device != NULL) && (device->deviceId != NULL))
     {
@@ -74,8 +76,8 @@ void iothub_registrymanager_sample_run(void)
     {
         IOTHUB_REGISTRYMANAGER_RESULT result;
 
-        IOTHUB_REGISTRY_DEVICE_CREATE deviceCreateInfo;
-        IOTHUB_REGISTRY_DEVICE_UPDATE deviceUpdateInfo;
+        IOTHUB_REGISTRY_DEVICE_CREATE_EX deviceCreateInfo;
+        IOTHUB_REGISTRY_DEVICE_UPDATE_EX deviceUpdateInfo;
 
         xlogging_set_log_function(consolelogger_log);
 
@@ -88,7 +90,7 @@ void iothub_registrymanager_sample_run(void)
         else
         {
             IOTHUB_REGISTRYMANAGER_HANDLE iotHubRegistryManagerHandle = NULL;
-            IOTHUB_DEVICE deviceInfo;
+            IOTHUB_DEVICE_EX deviceInfo;
             IOTHUB_REGISTRY_STATISTICS registryStatistics;
 
             (void)printf("iotHubServiceClientHandle has been created successfully\r\n");
@@ -98,13 +100,14 @@ void iothub_registrymanager_sample_run(void)
 
             (void)printf("RegistryManager has been created successfully\r\n");
 
+            deviceCreateInfo.version = IOTHUB_REGISTRY_DEVICE_CREATE_EX_VERSION_0;
             deviceCreateInfo.deviceId = deviceId;
             deviceCreateInfo.primaryKey = "";
             deviceCreateInfo.secondaryKey = "";
             deviceCreateInfo.authMethod = IOTHUB_REGISTRYMANAGER_AUTH_SPK;
 
             // Create device
-            result = IoTHubRegistryManager_CreateDevice(iotHubRegistryManagerHandle, &deviceCreateInfo, &deviceInfo);
+            result = IoTHubRegistryManager_CreateDeviceEx(iotHubRegistryManagerHandle, &deviceCreateInfo, &deviceInfo);
             switch (result)
             {
             case IOTHUB_REGISTRYMANAGER_OK:
@@ -139,7 +142,7 @@ void iothub_registrymanager_sample_run(void)
             deviceInfo.deviceProperties = "";
             deviceInfo.serviceProperties = "";
 
-            result = IoTHubRegistryManager_GetDevice(iotHubRegistryManagerHandle, deviceCreateInfo.deviceId, &deviceInfo);
+            result = IoTHubRegistryManager_GetDeviceEx(iotHubRegistryManagerHandle, deviceCreateInfo.deviceId, &deviceInfo);
             switch (result)
             {
             case IOTHUB_REGISTRYMANAGER_OK:
@@ -155,12 +158,13 @@ void iothub_registrymanager_sample_run(void)
             }
 
             // Update device
+            deviceUpdateInfo.version = IOTHUB_REGISTRY_DEVICE_UPDATE_EX_VERSION_0;
             deviceUpdateInfo.deviceId = deviceId;
             deviceUpdateInfo.primaryKey = "aaabbbcccdddeeefffggghhhiiijjjkkklllmmmnnnoo";
             deviceUpdateInfo.secondaryKey = "111222333444555666777888999000aaabbbcccdddee";
             deviceUpdateInfo.authMethod = IOTHUB_REGISTRYMANAGER_AUTH_SPK;
             deviceUpdateInfo.status = IOTHUB_DEVICE_STATUS_DISABLED;
-            result = IoTHubRegistryManager_UpdateDevice(iotHubRegistryManagerHandle, &deviceUpdateInfo);
+            result = IoTHubRegistryManager_UpdateDeviceEx(iotHubRegistryManagerHandle, &deviceUpdateInfo);
             switch (result)
             {
             case IOTHUB_REGISTRYMANAGER_OK:
@@ -192,7 +196,7 @@ void iothub_registrymanager_sample_run(void)
             deviceInfo.deviceProperties = "";
             deviceInfo.serviceProperties = "";
 
-            result = IoTHubRegistryManager_GetDevice(iotHubRegistryManagerHandle, deviceCreateInfo.deviceId, &deviceInfo);
+            result = IoTHubRegistryManager_GetDeviceEx(iotHubRegistryManagerHandle, deviceCreateInfo.deviceId, &deviceInfo);
             switch (result)
             {
             case IOTHUB_REGISTRYMANAGER_OK:
