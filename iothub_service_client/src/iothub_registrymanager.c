@@ -266,6 +266,7 @@ static void move_deviceOrModuleMaster_members_to_device(IOTHUB_DEVICE_OR_MODULE_
         device->generationId = master->generationId;
         device->eTag = master->eTag;
         device->connectionState = master->connectionState;
+        device->connectionStateUpdatedTime = master->connectionStateUpdatedTime;
         device->status = master->status;
         device->statusReason = master->statusReason;
         device->statusUpdatedTime = master->statusUpdatedTime;
@@ -290,6 +291,7 @@ static void move_deviceOrModuleMaster_members_to_deviceEx(IOTHUB_DEVICE_OR_MODUL
         device->generationId = master->generationId;
         device->eTag = master->eTag;
         device->connectionState = master->connectionState;
+        device->connectionStateUpdatedTime = master->connectionStateUpdatedTime;
         device->status = master->status;
         device->statusReason = master->statusReason;
         device->statusUpdatedTime = master->statusUpdatedTime;
@@ -315,6 +317,7 @@ static void move_deviceOrModuleMaster_members_to_module(IOTHUB_DEVICE_OR_MODULE_
         module->generationId = master->generationId;
         module->eTag = master->eTag;
         module->connectionState = master->connectionState;
+        module->connectionStateUpdatedTime = master->connectionStateUpdatedTime;
         module->status = master->status;
         module->statusReason = master->statusReason;
         module->statusUpdatedTime = master->statusUpdatedTime;
@@ -1806,7 +1809,7 @@ IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_UpdateDevice(IOTHUB_REGISTRY
 {
     IOTHUB_REGISTRYMANAGER_RESULT result;
 
-    if (deviceUpdate == NULL)
+    if (registryManagerHandle == NULL || deviceUpdate == NULL)
     {
         LogError("Input parameter cannot be NULL");
         result = IOTHUB_REGISTRYMANAGER_INVALID_ARG;
@@ -1835,7 +1838,7 @@ IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_UpdateDevice_Ex(IOTHUB_REGIS
 {
     IOTHUB_REGISTRYMANAGER_RESULT result;
 
-    if (deviceUpdate == NULL)
+    if (registryManagerHandle == NULL || deviceUpdate == NULL)
     {
         LogError("Input parameter cannot be NULL");
         result = IOTHUB_REGISTRYMANAGER_INVALID_ARG;
@@ -1843,7 +1846,7 @@ IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_UpdateDevice_Ex(IOTHUB_REGIS
     else if (deviceUpdate->version < IOTHUB_REGISTRY_DEVICE_UPDATE_EX_VERSION_0 || deviceUpdate->version > IOTHUB_REGISTRY_DEVICE_UPDATE_EX_VERSION_LATEST)
     {
         LogError("deviceUpdate must have valid version");
-        result = IOTHUB_REGISTRYMANAGER_INVALID_ARG;
+        result = IOTHUB_REGISTRYMANAGER_INVALID_VERSION;
     }
     else
     {
@@ -2015,7 +2018,12 @@ IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_CreateModule(IOTHUB_REGISTRY
     //IOTHUB_REGISTRY_DEVICE_OR_MODULE_CREATE* deviceOrModuleCreateInfo = (IOTHUB_REGISTRY_DEVICE_OR_MODULE_CREATE*)moduleCreate;
     //IOTHUB_DEVICE_OR_MODULE_MASTER* deviceOrModuleInfo = (IOTHUB_DEVICE_OR_MODULE_MASTER*)module;
 
-    if ((moduleCreate == NULL) || (moduleCreate->moduleId == NULL))
+    if ((registryManagerHandle == NULL) || (module == NULL))
+    {
+        LogError("Input parameter cannot be NULL");
+        result = IOTHUB_REGISTRYMANAGER_INVALID_ARG;
+    }
+    else if ((moduleCreate == NULL) || (moduleCreate->moduleId == NULL))
     {
         LogError("moduleId cannot be NULL");
         result = IOTHUB_REGISTRYMANAGER_INVALID_ARG;
@@ -2023,7 +2031,7 @@ IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_CreateModule(IOTHUB_REGISTRY
     else if (moduleCreate->version < IOTHUB_REGISTRY_MODULE_CREATE_VERSION_1 || moduleCreate->version > IOTHUB_REGISTRY_MODULE_CREATE_VERSION_LATEST)
     {
         LogError("moduleCreate must have a valid version");
-        result = IOTHUB_REGISTRYMANAGER_INVALID_ARG;
+        result = IOTHUB_REGISTRYMANAGER_INVALID_VERSION;
     }
     else
     {
@@ -2058,7 +2066,7 @@ IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_GetModule(IOTHUB_REGISTRYMAN
 {
     IOTHUB_REGISTRYMANAGER_RESULT result;
 
-    if ((deviceId == NULL) || (moduleId == NULL) || (module == NULL))
+    if ((registryManagerHandle == NULL) || (deviceId == NULL) || (moduleId == NULL) || (module == NULL))
     {
         LogError("Input parameter cannot be NULL");
         result = IOTHUB_REGISTRYMANAGER_INVALID_ARG;
@@ -2086,7 +2094,12 @@ IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_UpdateModule(IOTHUB_REGISTRY
 {
     IOTHUB_REGISTRYMANAGER_RESULT result;
 
-    if ((moduleUpdate == NULL) || (moduleUpdate->moduleId == NULL))
+    if (registryManagerHandle == NULL)
+    {
+        LogError("Input parameter cannot be NULL");
+        result = IOTHUB_REGISTRYMANAGER_INVALID_ARG;
+    }
+    else if ((moduleUpdate == NULL) || (moduleUpdate->moduleId == NULL))
     {
         LogError("moduleId cannot be NULL");
         result = IOTHUB_REGISTRYMANAGER_INVALID_ARG;
@@ -2094,7 +2107,7 @@ IOTHUB_REGISTRYMANAGER_RESULT IoTHubRegistryManager_UpdateModule(IOTHUB_REGISTRY
     else if (moduleUpdate->version < IOTHUB_REGISTRY_MODULE_UPDATE_VERSION_1 || moduleUpdate->version > IOTHUB_REGISTRY_MODULE_UPDATE_VERSION_LATEST)
     {
         LogError("moduleUpdate must have valid version");
-        result = IOTHUB_REGISTRYMANAGER_INVALID_ARG;
+        result = IOTHUB_REGISTRYMANAGER_INVALID_VERSION;
     }
     else
     {
